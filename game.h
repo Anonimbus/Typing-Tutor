@@ -8,14 +8,20 @@
 
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 20
-#define CAR_WIDTH 3
-#define CAR_HEIGHT 2
+#define TEXT_WIDTH 1
+#define TEXT_HEIGHT 1
 
-int carX, carY;
-int obstacleX, obstacleY;
+int textX=0,textY=0;
+int obstacleX=0, obstacleY=0;
 int score = 0;
 bool gameOver = false;
 char fallingWord[50];
+
+// Function prototype for gameScreen
+int gameScreen();						
+//added because the error:[Warning] implicit declaration of function 'gameScreen'; did you mean 'gameOverScreen'? [-Wimplicit-function-declaration]
+
+/******************************************************************REST OF THE CODE*******************************************************************************/
 
 void gotoxy(int x, int y) {
     COORD coord;
@@ -23,6 +29,8 @@ void gotoxy(int x, int y) {
     coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
+
+
 
 void drawMap() {
     int i, j;
@@ -42,72 +50,69 @@ void drawMap() {
     }
 }
 
-void drawCar() {
-    gotoxy(carX, carY);
-    printf(" ^ ");
-    gotoxy(carX, carY + 1);
-    printf("|O|");
+
+
+void drawTextHolder() {
+    gotoxy(textX, textY);
+    printf("Enter the falling word : ");
 }
 
-void clearCar() {
-    gotoxy(carX, carY);
-    printf("   ");
-    gotoxy(carX, carY + 1);
-    printf("   ");
+
+
+void clearTextHolder() {
+    gotoxy(textX, textY);
+    printf("	");
 }
+
+
 
 void createObstacle() {
     char *wordPtr = getWord();
     strcpy(fallingWord, wordPtr);
 }
 
+
+
 void drawObstacle() {
     gotoxy(obstacleX, obstacleY);
     printf("%s", fallingWord);
 }
 
+
+
 void clearObstacle() {
     gotoxy(obstacleX, obstacleY);
-    printf("   ");
+//    drawMap();						tried to draw the map again but failed! :(
+    printf("	");
 }
+
+
 
 void moveObstacle() {
     if (obstacleY >= MAP_HEIGHT - 2) { // Change the condition to check if the obstacle reaches the bottom of the map
         clearObstacle();
         gameOver = true; // Set gameOver flag to true
     } else {
+//    	system("cls");
+//    	drawMap();		//putting here also didn't work!
         clearObstacle();
+	    Sleep(200);        //Changing the speed of sleep will help in changing the falling speed of the word
+	    drawObstacle();
         obstacleY++;
     }
-    drawObstacle();
 }
 
 
-void moveCar(int direction) {
-    switch (direction) {
-        case 'a':
-            if (carX > 1) {
-                clearCar();
-                carX -= 2;
-            }
-            break;
-        case 'd':
-            if (carX < MAP_WIDTH - CAR_WIDTH - 1) {
-                clearCar();
-                carX += 2;
-            }
-            break;
-    }
-    drawCar();
-}
 
 bool checkCollision() {
-    if (carX >= obstacleX - CAR_WIDTH && carX <= obstacleX + 2 && carY + CAR_HEIGHT - 1 == obstacleY) {
+    if (textX >= obstacleX - TEXT_WIDTH && textX <= obstacleX + 2 && textY + TEXT_HEIGHT - 1 == obstacleY) {
         return true;
     }
     return false;
 }
 
+
+/*****************************************************THE GAME OVER SCREEN********************************************************/
 void gameOverScreen() {
     system("cls");
     printf("Game Over!\n");
@@ -118,9 +123,10 @@ void gameOverScreen() {
     while (1) {
         if (kbhit()) {
             key = getch();
-            if (key == 27) { // If Esc is pressed, exit the program
+            if (key == 27) { 				// If Esc is pressed, exit the game		but for some reason we have to press esc twice
+//            	return 404;
             	break;
-            } else { // Otherwise, restart the game
+            } else {						// Otherwise, restart the game
                 gameOver = false;
                 score = 0;
                 gameScreen();
@@ -130,10 +136,13 @@ void gameOverScreen() {
 }
 
 
+/*******************************************************THIS IS OUR MAIN SCREEN***************************************************/
 int gameScreen() {
     char key;
-    carX = MAP_WIDTH / 2 - CAR_WIDTH / 2;
-    carY = MAP_HEIGHT - CAR_HEIGHT - 1;
+//    carX = MAP_WIDTH / 2 - CAR_WIDTH / 2;
+//    carY = MAP_HEIGHT - CAR_HEIGHT - 1;
+    textX = 100;
+    textY = 100;
 
     srand(time(NULL));
     obstacleX = rand() % (MAP_WIDTH - 3) + 1;
@@ -141,7 +150,7 @@ int gameScreen() {
 
     system("cls");
     drawMap();
-    drawCar();
+    drawTextHolder();
     createObstacle(); // Initialize fallingWord
 
     gotoxy(0, MAP_HEIGHT + 3);
@@ -152,8 +161,8 @@ int gameScreen() {
             key = getch();
             if (key == 27) {
                 break;
+                //here i can add the pause screen!
             }
-            moveCar(key);
         }
         moveObstacle();
         if (checkCollision()) {
@@ -161,11 +170,10 @@ int gameScreen() {
         }
         gotoxy(0, MAP_HEIGHT + 4);
         printf("Score: %d", score);
-        Sleep(200);
+//        Sleep(200); 							//Hawa jasto ya sleep hanera kasari hunxa!!
     }
 
     gameOverScreen();
     getch();
     return 0;
 }
-
