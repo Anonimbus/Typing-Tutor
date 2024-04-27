@@ -12,9 +12,10 @@
 #define TEXT_WIDTH 1
 #define TEXT_HEIGHT 1
 
-int textX=0,textY=0;						//to store the current position of text we are writing
+// int textX=0,textY=0;						//to store the current position of text we are writing.
 int obstacleX=0, obstacleY=0;
 int xCopy=0,yCopy=0;
+int lp=0;
 int score = 0;								//count the current score of the game
 int lenWord;
 bool gameOver = false;
@@ -70,34 +71,45 @@ void drawTextHolder() {
     gotoxy(0,MAP_HEIGHT + 3);
     printf("Enter the falling word : ");
     
-    {
 
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
+    //CODE TO GIVE THE POSISION OF THE CURSOR CURRENTLY
+    // {
+
+    //     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    //     CONSOLE_SCREEN_BUFFER_INFO csbi;
         
-        // Get the console screen buffer information
-        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-            // Print the current cursor position
-            printf("Current Cursor Position: X=%d, Y=%d\n", csbi.dwCursorPosition.X, csbi.dwCursorPosition.Y);
-        } else {
-            printf("Failed to get console screen buffer information.\n");
-        }
+    //     // Get the console screen buffer information
+    //     if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+    //         // Print the current cursor position
+    //         printf("Current Cursor Position: X=%d, Y=%d\n", csbi.dwCursorPosition.X, csbi.dwCursorPosition.Y);
+    //     } else {
+    //         printf("Failed to get console screen buffer information.\n");
+    //     }
 
-    }
+    // }
     
     
 	char b[100];
-	fgets(b,strlen(fallingWord)+1,stdin);
+    for (lp;b[lp]!='\0';lp++)
+    {
+    gotoxy(25+lp,MAP_HEIGHT+3);
+	b[lp] = _getch();
+    }
+    if(strcmp)
 
+    
 	if (strcmp(b,fallingWord)==0)
 	{
         gotoxy(0, MAP_HEIGHT + 6);
 		printf("you did it");
+        lp=0;
 		score++;
 		blowText();
 		gameScreen();
 	}
 }
+
+/*****************************************************OBSTACLE/WORD PROPERTIES********************************************************/
 
 void createObstacle() {
     char *wordPtr = getWord();
@@ -109,25 +121,21 @@ void createObstacle() {
 
 
 
-void drawObstacle() {
-
-	xCopy=obstacleX;
-	yCopy=obstacleY;
-    // Draw the falling word at its current position
-    gotoxy(obstacleX, obstacleY);
-    printf("%s", fallingWord);
-}
-
-
 void moveObstacle() {
     if (obstacleY >= MAP_HEIGHT-2) { // Change the condition to check if the obstacle reaches the bottom of the map
         blowText();
         gameOver = true; // Set gameOver flag to true
     } else {
-        blowText();
-	    Sleep(20);        //Changing the speed of sleep will help in changing the falling speed of the word
-	    drawObstacle();
+        blowText();                                                         //clearing the previous text
         obstacleY++;
+
+        xCopy=obstacleX;
+        yCopy=obstacleY;
+        // Draw the falling word at its current position
+        gotoxy(obstacleX, obstacleY);
+        printf("%s", fallingWord);	                                        //printing the falling word
+
+        Sleep(200);        //Changing the speed of sleep will help in changing the falling speed of the word
     }
 }
 
