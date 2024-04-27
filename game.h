@@ -12,12 +12,11 @@
 #define TEXT_WIDTH 1
 #define TEXT_HEIGHT 1
 
-int textX=0,textY=0;
+int textX=0,textY=0;						//to store the current position of text we are writing
 int obstacleX=0, obstacleY=0;
 int xCopy=0,yCopy=0;
-int cursorX,cursorY;
 int score = 0;								//count the current score of the game
-//int gameStatus=0;							//check if the player is out and start score from 0;
+int lenWord;
 bool gameOver = false;
 char fallingWord[50];
 char destruction[50];
@@ -59,7 +58,9 @@ void drawMap() {
 void blowText()
 {
 	gotoxy(xCopy,yCopy);
-	printf("                ");
+    for (int i = 0; i < lenWord; i++) {
+        printf(" ");
+	}
 	xCopy=obstacleX;
 	yCopy=obstacleY;
 }
@@ -69,9 +70,25 @@ void drawTextHolder() {
     gotoxy(0,MAP_HEIGHT + 3);
     printf("Enter the falling word : ");
     
-//    new oneeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee/*************************************************************************************
+    {
+
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        
+        // Get the console screen buffer information
+        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+            // Print the current cursor position
+            printf("Current Cursor Position: X=%d, Y=%d\n", csbi.dwCursorPosition.X, csbi.dwCursorPosition.Y);
+        } else {
+            printf("Failed to get console screen buffer information.\n");
+        }
+
+    }
+    
+    
 	char b[100];
-	fgets(b,strlen(fallingWord)+1,stdin);	
+	fgets(b,strlen(fallingWord)+1,stdin);
+
 	if (strcmp(b,fallingWord)==0)
 	{
         gotoxy(0, MAP_HEIGHT + 6);
@@ -80,25 +97,12 @@ void drawTextHolder() {
 		blowText();
 		gameScreen();
 	}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
-
-//void clearTextHolder() {
-//    gotoxy(textX, textY);
-//    printf("	");
-//}
-
-
-
-//void createObstacle() {
-//    char *wordPtr = getWord();
-//    strcpy(fallingWord, wordPtr);
-//}
 void createObstacle() {
     char *wordPtr = getWord();
     strcpy(fallingWord, wordPtr);
-
+	lenWord=strlen(fallingWord);
     // Adjust the obstacleX position to ensure the word stays within the border
     obstacleX = rand() % (MAP_WIDTH - strlen(fallingWord) - 2) + 1;
 }
@@ -106,36 +110,20 @@ void createObstacle() {
 
 
 void drawObstacle() {
-    // Clear previous positions of the falling word
-    for (int i = 0; i < strlen(fallingWord); i++) {
-        gotoxy(obstacleX + i, obstacleY);
-        printf(" ");
-    }
+
 	xCopy=obstacleX;
 	yCopy=obstacleY;
     // Draw the falling word at its current position
     gotoxy(obstacleX, obstacleY);
     printf("%s", fallingWord);
 }
-//void drawObstacle() {
-//    int originalX, originalY;
-//    CONSOLE_SCREEN_BUFFER_INFO csbi;
-//    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-//    originalX = csbi.dwCursorPosition.X;
-//    originalY = csbi.dwCursorPosition.Y;
-//
-//    gotoxy(obstacleX, obstacleY);
-//    printf("%s", fallingWord);
-//
-//}
+
 
 void moveObstacle() {
-    if (obstacleY >= MAP_HEIGHT - 2) { // Change the condition to check if the obstacle reaches the bottom of the map
+    if (obstacleY >= MAP_HEIGHT-2) { // Change the condition to check if the obstacle reaches the bottom of the map
         blowText();
         gameOver = true; // Set gameOver flag to true
     } else {
-//    	system("cls");
-//    	drawMap();		//putting here also didn't work!
         blowText();
 	    Sleep(20);        //Changing the speed of sleep will help in changing the falling speed of the word
 	    drawObstacle();
@@ -143,25 +131,15 @@ void moveObstacle() {
     }
 }
 
-
-
-bool checkCollision() {
-    if (textX >= obstacleX - TEXT_WIDTH && textX <= obstacleX + 2 && textY + TEXT_HEIGHT - 1 == obstacleY) {
-        return true;
-    }
-    return false;
-}
-
-
 /*****************************************************THE GAME OVER SCREEN********************************************************/
 void gameOverScreen() {
     system("cls");
     printf("Game Over!\n");
-    char *destroy = destructionWord();
-    strcpy(destruction, destroy);
-    printf("The word that %s you is : %s\n",destruction,fallingWord);  
-    printf("Your Score: %d\n", score);
-    printf("Press any key to restart, or press Esc to exit...\n");
+//    char *destroy = destructionWord();
+//    strcpy(destruction, destroy);																//something went wrong! it sometime works
+//    printf("The word that\t %s you is : %s\n",destruction,fallingWord);
+	printf("Your Score: %d\n", score);
+    printf("Press any key to restart, or hold Esc to exit...\n");
 
     char key;
     while (1) {
@@ -183,43 +161,25 @@ void gameOverScreen() {
 /*******************************************************THIS IS OUR MAIN SCREEN***************************************************/
 int gameScreen() {
     char key;
-//    carX = MAP_WIDTH / 2 - CAR_WIDTH / 2;
-//    carY = MAP_HEIGHT - CAR_HEIGHT - 1;
-    textX = 100;
-    textY = 100;
 
     srand(time(NULL));
-    obstacleX = rand() % (MAP_WIDTH - 3) -8;
+    obstacleX = rand() % (MAP_WIDTH - 3) -8;        //the word with max length is 16 may cause some trouble if spawned in right side
     obstacleY = 1;
 
     system("cls");
     drawMap();
     createObstacle(); // Initialize fallingWord
-
-    gotoxy(0, MAP_HEIGHT + 4);
-    printf("Esc - Quit\n");
     
     while (!gameOver) {
-        if (kbhit()) {
-            key = getch();
-            if (key == 27) {
-                break;
-                //here i can add the pause screen!
-            }
-        }
-        
+                
         drawTextHolder();
         
         moveObstacle();
-        if (checkCollision()) {
-            gameOver = true;
-        }
+
         gotoxy(0, MAP_HEIGHT + 5);
         printf("Score: %d", score);
-//        Sleep(200); 							//Hawa jasto ya sleep hanera kasari hunxa!!
     }
 
     gameOverScreen();
-    getch();
     return 0;
 }
