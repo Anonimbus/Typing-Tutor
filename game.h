@@ -21,6 +21,8 @@ int lenWord=0;
 bool gameOver = false;
 char fallingWord[50];
 char destruction[50];
+char b[100];
+
 
 // Function prototype for gameScreen
 int gameScreen();						
@@ -66,7 +68,7 @@ void blowText() {														//clears out the previous instance of fallingWord
 }
 
 
-void drawTextHolder() {													//the location where the user inputs the fallinWord
+void drawTextHolder() {													//the location where the user inputs the fallingWord
     gotoxy(0,MAP_HEIGHT + 3);
     printf("Enter the falling word : ");
     
@@ -88,29 +90,41 @@ void drawTextHolder() {													//the location where the user inputs the fal
     // }
     
     
-	char b[100];
-    if(b[lp]!='\0')
-    {
-    gotoxy(25+lp,MAP_HEIGHT+3);
-	b[lp] = getch();
-    }
+        gotoxy(25+lp,MAP_HEIGHT+3);                     //here 25 is the length of the string""
+        b[lp] = _getch();
 
-        if (b[lp] == 27) 
-            gameOver=true;
-
-	if (strcmp(b,fallingWord)==0) {
-        gotoxy(0, MAP_HEIGHT + 6);
-		printf("you did it");
-        lp=0;
-		score++;
-		blowText();
-		gameScreen();
-	}
+            if (b[lp] == 27) 
+                gameOver=true;
+            else if (b[lp] == 13)
+            {
+                gotoxy(0,MAP_HEIGHT+4);
+                printf("hello hurrah burrah");
+                b[lp]=='\0';
+                printf("the length of falling word is : %d ", strlen(fallingWord) );
+                printf("the length of entered word is : %d ", strlen(b));                  //here the length of fallingWord and b is not same!!! #most imp concern
+                if (strcmp(b,fallingWord)==0) {
+                    gotoxy(0, MAP_HEIGHT + 6);
+                    printf("you did it");
+                    Sleep(2000);
+                    lp=0;
+                    score++;
+                    // blowText();
+                    gameScreen();
+                }
+                else {
+                    lp=0;
+                    gotoxy(25,MAP_HEIGHT+3);
+                    printf("                        ");
+                    memset(b, '\0', sizeof(b));                                     //now this cleared all the memory and didn't let it fill 
+                }
+            }
+        printf("%c",b[lp]);
+        lp++;
 }
 
 /*****************************************************OBSTACLE/WORD PROPERTIES********************************************************/
 
-void createObstacle() {
+void createObstacle() {                                                 //selects a word from file and generates a X-spawn location of word
     char *wordPtr = getWord();
     strcpy(fallingWord, wordPtr);
 	lenWord=strlen(fallingWord);
@@ -120,7 +134,7 @@ void createObstacle() {
 
 
 
-void moveObstacle() {
+void moveObstacle() {                                                   //tests if reached bottom
     if (obstacleY >= MAP_HEIGHT-2) { // Change the condition to check if the obstacle reaches the bottom of the map
         blowText();
         gameOver = true; // Set gameOver flag to true
@@ -133,7 +147,7 @@ void moveObstacle() {
         // Draw the falling word at its current position
         gotoxy(obstacleX, obstacleY);
         printf("%s", fallingWord);	                                        //printing the falling word
-        drawTextHolder();
+        // drawTextHolder();
         Sleep(200);        //Changing the speed of sleep will help in changing the falling speed of the word
     }
 }
@@ -153,7 +167,6 @@ void gameOverScreen() {
         if (kbhit()) {
             key = getch();
             if (key == 27) { 				// If Esc is pressed, exit the game		but for some reason we have to press esc twice
-//            	return 404;
             	break;
             } else {						// Otherwise, restart the game
                 gameOver = false;
@@ -179,11 +192,11 @@ int gameScreen() {
     
     while (!gameOver) {
                 
-        moveObstacle();
-        drawTextHolder();
-
         gotoxy(0, MAP_HEIGHT + 5);
         printf("Score: %d", score);
+
+        moveObstacle();
+        drawTextHolder();
     }
 
     gameOverScreen();

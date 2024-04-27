@@ -93,7 +93,6 @@ void Headmaster(char text[1000])// this function takes a text and does all the f
     float wordsH = (float)i / (float)5;
     float timediff = (end_time - start_time) / 60.0;
     
-   
     float speed = ( wordsH )/ timediff;
     float acc = (((float)i - (float)err) / (float)i) * 100;
     

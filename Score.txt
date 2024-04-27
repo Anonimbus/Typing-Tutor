@@ -42,3 +42,4 @@ Speed : 60.00 ; Acc 100.00
 Speed : 51.43 ; Acc 73.33
 Speed : 51.43 ; Acc 86.67
 Speed : 60.00 ; Acc 76.67
+Speed : 64.80 ; Acc 96.30
