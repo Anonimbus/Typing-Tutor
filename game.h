@@ -17,7 +17,7 @@ int obstacleX=0, obstacleY=0;
 int xCopy=0,yCopy=0;
 int lp=0;
 int score = 0;								//count the current score of the game
-int lenWord;
+int lenWord=0;
 bool gameOver = false;
 char fallingWord[50];
 char destruction[50];
@@ -28,7 +28,7 @@ int gameScreen();
 
 /******************************************************************REST OF THE CODE*******************************************************************************/
 
-void gotoxy(int x, int y) {
+void gotoxy(int x, int y) {												//function to move the cursor to the given position
     COORD coord;
     coord.X = x;
     coord.Y = y;
@@ -37,7 +37,7 @@ void gotoxy(int x, int y) {
 
 
 
-void drawMap() {
+void drawMap() {														//draws the game area border; it also provides a base for gameOver condition
     int i, j;
     for (i = 0; i < MAP_HEIGHT; i++) {
         for (j = 0; j < MAP_WIDTH; j++) {
@@ -45,7 +45,7 @@ void drawMap() {
                 printf("-");
             } else {
                 if (j == 0 || j == MAP_WIDTH - 1) {
-                    printf("|");											//previously here was border  printf("|")
+                    printf("|");
                 } else {
                     printf(" ");
                 }
@@ -56,8 +56,7 @@ void drawMap() {
 }
 
 
-void blowText()
-{
+void blowText() {														//clears out the previous instance of fallingWord
 	gotoxy(xCopy,yCopy);
     for (int i = 0; i < lenWord; i++) {
         printf(" ");
@@ -67,12 +66,12 @@ void blowText()
 }
 
 
-void drawTextHolder() {
+void drawTextHolder() {													//the location where the user inputs the fallinWord
     gotoxy(0,MAP_HEIGHT + 3);
     printf("Enter the falling word : ");
     
 
-    //CODE TO GIVE THE POSISION OF THE CURSOR CURRENTLY
+    //CODE TO GIVE THE CURRENT POSITION OF THE CURSOR
     // {
 
     //     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -90,16 +89,16 @@ void drawTextHolder() {
     
     
 	char b[100];
-    for (lp;b[lp]!='\0';lp++)
+    if(b[lp]!='\0')
     {
     gotoxy(25+lp,MAP_HEIGHT+3);
-	b[lp] = _getch();
+	b[lp] = getch();
     }
-    if(strcmp)
 
-    
-	if (strcmp(b,fallingWord)==0)
-	{
+        if (b[lp] == 27) 
+            gameOver=true;
+
+	if (strcmp(b,fallingWord)==0) {
         gotoxy(0, MAP_HEIGHT + 6);
 		printf("you did it");
         lp=0;
@@ -134,7 +133,7 @@ void moveObstacle() {
         // Draw the falling word at its current position
         gotoxy(obstacleX, obstacleY);
         printf("%s", fallingWord);	                                        //printing the falling word
-
+        drawTextHolder();
         Sleep(200);        //Changing the speed of sleep will help in changing the falling speed of the word
     }
 }
@@ -180,9 +179,8 @@ int gameScreen() {
     
     while (!gameOver) {
                 
-        drawTextHolder();
-        
         moveObstacle();
+        drawTextHolder();
 
         gotoxy(0, MAP_HEIGHT + 5);
         printf("Score: %d", score);
