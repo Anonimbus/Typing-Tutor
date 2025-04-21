@@ -1,11 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include <string.h>
-#include <windows.h>
 #include <stdbool.h>
 #include <time.h>
 #include "wordExtractor.h"
+#ifdef _WIN32
+    #include <conio.h>    // for getch()
+    #include <windows.h>  // for system("cls")
+
+
+    void gotoxy(int x, int y) {												//function to move the cursor to the given position
+        COORD coord;
+        coord.X = x;
+        coord.Y = y;
+        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+        #define SleepMS(ms) Sleep(ms)
+    }
+
+#else
+    #include <termios.h>
+    #include <unistd.h>
+    int getch(void) {
+        struct termios oldattr, newattr;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldattr);              // get current terminal attributes
+        newattr = oldattr;
+        newattr.c_lflag &= ~(ICANON | ECHO);            // disable buffering & echo
+        tcsetattr(STDIN_FILENO, TCSANOW, &newattr);     // set new attributes
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);     // restore old attributes
+        return ch;
+    }
+
+    void gotoxy(int x, int y) {
+        printf("\033[%d;%dH", y, x);  // ANSI escape code to move cursor
+    }
+    #define SleepMS(ms) usleep((ms) * 1000)  // Convert to microseconds
+    
+#endif
+
+void clear_screen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
 
 #define MAP_WIDTH 60
 #define MAP_HEIGHT 20
@@ -28,15 +69,7 @@ char b[100];
 int gameScreen();						
 //added because the error:[Warning] implicit declaration of function 'gameScreen'; did you mean 'gameOverScreen'? [-Wimplicit-function-declaration]
 
-/******************************************************************REST OF THE CODE*******************************************************************************/
-
-void gotoxy(int x, int y) {												//function to move the cursor to the given position
-    COORD coord;
-    coord.X = x;
-    coord.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-}
-
+// ******************************************************************REST OF THE CODE*******************************************************************************
 
 
 void drawMap() {														//draws the game area border; it also provides a base for gameOver condition
@@ -91,7 +124,7 @@ void drawTextHolder() {													//the location where the user inputs the fal
     
     
         gotoxy(25+lp,MAP_HEIGHT+3);                     //here 25 is the length of the string""
-        b[lp] = _getch();
+        b[lp] = getch();
 
             if (b[lp] == 27) 
                 gameOver=true;
@@ -99,13 +132,13 @@ void drawTextHolder() {													//the location where the user inputs the fal
             {
                 gotoxy(0,MAP_HEIGHT+4);
                 printf("hello hurrah burrah");
-                b[lp]=='\0';
-                printf("the length of falling word is : %d ", strlen(fallingWord) );
-                printf("the length of entered word is : %d ", strlen(b));                  //here the length of fallingWord and b is not same!!! #most imp concern
+                b[lp]='\0';
+                printf("the length of falling word is : %zu ", strlen(fallingWord) );
+                printf("the length of entered word is : %zu ", strlen(b));                  //here the length of fallingWord and b is not same!!! #most imp concern
                 if (strcmp(b,fallingWord)==0) {
                     gotoxy(0, MAP_HEIGHT + 6);
                     printf("you did it");
-                    Sleep(2000);
+                    SleepMS(2000);
                     lp=0;
                     score++;
                     // blowText();
@@ -122,7 +155,7 @@ void drawTextHolder() {													//the location where the user inputs the fal
         lp++;
 }
 
-/*****************************************************OBSTACLE/WORD PROPERTIES********************************************************/
+// *****************************************************OBSTACLE/WORD PROPERTIES********************************************************
 
 void createObstacle() {                                                 //selects a word from file and generates a X-spawn location of word
     char *wordPtr = getWord();
@@ -148,13 +181,13 @@ void moveObstacle() {                                                   //tests 
         gotoxy(obstacleX, obstacleY);
         printf("%s", fallingWord);	                                        //printing the falling word
         // drawTextHolder();
-        Sleep(200);        //Changing the speed of sleep will help in changing the falling speed of the word
+        SleepMS(200);        //Changing the speed of sleep will help in changing the falling speed of the word
     }
 }
 
-/*****************************************************THE GAME OVER SCREEN********************************************************/
+// ****************************************************THE GAME OVER SCREEN********************************************************
 void gameOverScreen() {
-    system("cls");
+    clear_screen();
     printf("Game Over!\n");
 //    char *destroy = destructionWord();
 //    strcpy(destruction, destroy);																//something went wrong! it sometime works
@@ -178,7 +211,8 @@ void gameOverScreen() {
 }
 
 
-/*******************************************************THIS IS OUR MAIN SCREEN***************************************************/
+// *******************************************************THIS IS OUR MAIN SCREEN***************************************************
+
 int gameScreen() {
     char key;
 
@@ -186,7 +220,7 @@ int gameScreen() {
     obstacleX = rand() % (MAP_WIDTH - 3) -8;        //the word with max length is 16 may cause some trouble if spawned in right side
     obstacleY = 1;
 
-    system("cls");
+    clear_screen();
     drawMap();
     createObstacle(); // Initialize fallingWord
     
@@ -202,3 +236,8 @@ int gameScreen() {
     gameOverScreen();
     return 0;
 }
+
+// int main(){
+//     gameScreen();
+//     return 0;
+// }
