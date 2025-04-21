@@ -1,18 +1,15 @@
 #include <stdio.h>    // standard input output
 #include <time.h>     // time(NULL)
 #include <stdlib.h>   // rand() 
-#include <conio.h>    // getch()
-#include <windows.h>  // system("cls")
-#include  "game.h"	  // custom header for game
-
+#include  "game.c"	  // custom header for game
 
 #define RED printf("\x1b[31m");
 #define YELLOW printf("\x1b[33m");
 #define BLUE printf("\x1b[34m");
+#define GREEN printf("\x1b[32;1m");
 #define RESET printf("\x1b[0m");
 
 //_____________________________________________________________________________________________________________________________
-
 int totalLines()   // calculates total lines of texts in the file named text.txt . allows for unlimeted addition of random text by the user
                    
 {
@@ -36,10 +33,8 @@ void Headmaster(char text[1000])// this function takes a text and does all the f
     int i;
     int textcnt = 0;
 
-   
     for (i = 0; text[i] != '\0'; i++); // Length of text
   
-
     char a;
     int err = 0;
     int check = 0;
@@ -68,7 +63,7 @@ void Headmaster(char text[1000])// this function takes a text and does all the f
 
             if (text[textcnt] == a)          // If the typed character by the user is correct
             {
-            YELLOW
+            GREEN
                 printf("%c", a);
             RESET
             }
@@ -77,7 +72,7 @@ void Headmaster(char text[1000])// this function takes a text and does all the f
                 RED
                 printf("%c", text[textcnt]);
                 printf("\b");
-                do {}while (_getch() != text[textcnt]);                
+                do {}while (getch() != text[textcnt]);                
                 RESET
                 YELLOW
                 printf("%c",text[textcnt]);
@@ -116,7 +111,7 @@ void Headmaster(char text[1000])// this function takes a text and does all the f
 //_____________________________________________________________________________________________________________________
 }
 
-char RandomSentence(char text[1000]) // This function provides random sentences extrating from file named text.txt
+void RandomSentence(char text[1000]) // This function provides random sentences extrating from file named text.txt
 {
        
     int textcnt = 0;
@@ -135,7 +130,7 @@ char RandomSentence(char text[1000]) // This function provides random sentences 
             
             if(ch[0] == 10)
              { 
-                if(check = 1)
+                if(check == 1)
                 { bscnt ++;
                  continue;
                 }
@@ -152,6 +147,7 @@ char RandomSentence(char text[1000]) // This function provides random sentences 
 
             } while(ch[0] != EOF);
     text[textcnt]='\0';
+    fclose(fp);
 }
 
 void TypingTest()
@@ -159,7 +155,7 @@ void TypingTest()
         char text[1000] = "";
         RandomSentence(text); // Fills Text with characters
         Headmaster(text);
-        }while(_getch()!= 27);
+        }while(getch()!= 27);
 }
 
 void drill()
@@ -167,7 +163,7 @@ void drill()
    system("cls");
    char charc[100]="";
    printf("Enter characters you want to Practise with :\n");
-   scanf("%s",charc);
+   scanf("%99s",charc);
    int space;
        do{ 
    for(space = 0; charc[space] !='\0';space++);
@@ -192,7 +188,7 @@ void drill()
     }   
 
         Headmaster(text);
-    }while(_getch() != 27);
+    }while(getch() != 27);
 }
 
 int main()
@@ -215,26 +211,25 @@ op:
         YELLOW
         printf("Choose your option\n");
         RESET
+        printf("0. Exit\n");
         printf("1. Typing practise with short sentences\n");
         printf("2. Typing Drill\n");
-        printf("3. Typing Game\n");
-               scanf("%d", &options);
+        // printf("3. Typing Game\n");
+        scanf("%d", &options);
         switch (options)
         {
-        case 1:
-            TypingTest();
-            break;
-        case 2:
-            drill();
-            break;
-        case 3:
-        	gameScreen();
-        	break;
-        default:
-            printf("Invalid option\n\n");
-            Sleep(1);
+            case 0:
+                return 0;
+            case 1:
+                TypingTest();
+                break;
+            case 2:
+                drill();
+                break;
+            default:
+                printf("Invalid option\n\n");
+                SleepMS(1000);
         }
     } while (1);
 }
-
 //_____________________________________________________________________________________________________________________________

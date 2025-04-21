@@ -43,3 +43,11 @@ Speed : 51.43 ; Acc 73.33
 Speed : 51.43 ; Acc 86.67
 Speed : 60.00 ; Acc 76.67
 Speed : 64.80 ; Acc 96.30
+Speed : 46.29 ; Acc 96.30
+Speed : 62.00 ; Acc 98.39
+Speed : 25.71 ; Acc 83.33
+Speed : 44.57 ; Acc 94.23
+Speed : 78.00 ; Acc 100.00
+Speed : 68.00 ; Acc 94.12
+Speed : 67.64 ; Acc 96.77
+Speed : 88.00 ; Acc 100.00
